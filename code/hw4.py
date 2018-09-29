@@ -86,14 +86,22 @@ for i in list(range(0, numSplits)):
 decisionTreeAccuracyScores = list(decisionTreePerformance['accuracy'].values())
 averageDecisionTreeAccuracy = np.mean(decisionTreeAccuracyScores)
 
-kAccuracies = {}
+knnAverageAccuracy = {}
 for k in knnPerformance:
     accuracyValuesList = [knn['accuracy'] for knn in knnPerformance[k]]
+    knnAverageAccuracy[k] = np.mean(accuracyValuesList)
 
-    kAccuracies[k] = {
-        'accuracyValues': accuracyValuesList,
-        'averageAccuracy': np.mean(accuracyValuesList)
-    }
 
-plt.bar(list(kAccuracies.keys()), [knn['accuracyValues'] for knn in knnPerformance])
+print(list(knnAverageAccuracy.keys()))
+print(list(knnAverageAccuracy.values()))
+
+plt.bar(list(knnAverageAccuracy.keys()), list(knnAverageAccuracy.values()))
+plt.title('Number of Nearest Neighbors vs Average Accuracy')
+plt.xlabel('Nearest Neighbors')
+plt.ylabel('Average Accuracy')
+plt.axis([0, 11, 0.8, 1])
+
 plt.show()
+
+
+
