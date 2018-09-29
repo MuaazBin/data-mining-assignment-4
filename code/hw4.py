@@ -87,13 +87,16 @@ decisionTreeAccuracyScores = list(decisionTreePerformance['accuracy'].values())
 averageDecisionTreeAccuracy = np.mean(decisionTreeAccuracyScores)
 
 knnAverageAccuracy = {}
+knnAverageFScore = {}
 for k in knnPerformance:
     accuracyValuesList = [knn['accuracy'] for knn in knnPerformance[k]]
+    fScoreValuesList = [knn['fScore'] for knn in knnPerformance[k]]
+
     knnAverageAccuracy[k] = np.mean(accuracyValuesList)
+    knnAverageFScore[k] = np.mean(fScoreValuesList)
 
 
-print(list(knnAverageAccuracy.keys()))
-print(list(knnAverageAccuracy.values()))
+print(knnAverageFScore)
 
 plt.bar(list(knnAverageAccuracy.keys()), list(knnAverageAccuracy.values()))
 plt.title('Number of Nearest Neighbors vs Average Accuracy')
