@@ -7,6 +7,7 @@ import numpy as np
 import graphviz
 from sklearn.metrics import accuracy_score
 from sklearn.metrics import f1_score
+import matplotlib.pyplot as plt
 
 
 print('\n\n//=================== HOMEWORK 4 ====================//')
@@ -36,7 +37,6 @@ irisDataframe.replace(cleanValues, inplace=True)
 print('\n//-------------------Constructing Models-------------------//')
 decisionTreePerformance = {
     'accuracy': {},
-    'fMeasure': {}
 }
 
 knnPerformance = {}
@@ -67,7 +67,6 @@ for i in list(range(0, numSplits)):
 
     #  make knn classifier, calculate accuracy of predictions
     numNeighbors = list(range(1, 11))
-    knnPerformance[i] = list()
 
     for k in numNeighbors:
         knnClassifier = KNeighborsClassifier(n_neighbors=k)
@@ -76,25 +75,25 @@ for i in list(range(0, numSplits)):
         knnAccuracyScore = accuracy_score(yTestingSet, knnPredictedValues)
         knnFScore = f1_score(yTestingSet, knnPredictedValues, average='weighted')
 
-        knnPerformance[i].append({
-            'k': k,
+        if k not in knnPerformance:
+            knnPerformance[k] = list()
+
+        knnPerformance[k].append({
             'accuracy': knnAccuracyScore,
             'fScore': knnFScore
         })
 
-# numFolds = 5
-# decisionTreeClassifier = DecisionTreeClassifier()
-# crossValidationScores = cross_val_score(decisionTreeClassifier, iris.data, iris.target, cv=numFolds)
-#
-# knnEntries = []
-#
-# for k in list(range(1,11)):
-#     knnClassifier = KNeighborsClassifier(n_neighbors=k)
-#     crossValidationScores = list(cross_val_score(knnClassifier, iris.data, iris.target, cv=numFolds))
-#     newEntry = {
-#         'k': k,
-#         'cvScores': crossValidationScores
-#     }
-#     knnEntries.append(newEntry)
-#
-# print(knnEntries)
+decisionTreeAccuracyScores = list(decisionTreePerformance['accuracy'].values())
+averageDecisionTreeAccuracy = np.mean(decisionTreeAccuracyScores)
+
+kAccuracies = {}
+for k in knnPerformance:
+    accuracyValuesList = [knn['accuracy'] for knn in knnPerformance[k]]
+
+    kAccuracies[k] = {
+        'accuracyValues': accuracyValuesList,
+        'averageAccuracy': np.mean(accuracyValuesList)
+    }
+
+plt.bar(list(kAccuracies.keys()), [knn['accuracyValues'] for knn in knnPerformance])
+plt.show()
