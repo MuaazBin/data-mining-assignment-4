@@ -83,28 +83,32 @@ for i in list(range(0, numSplits)):
             'fScore': knnFScore
         })
 
+print('\n//-------------------Calculating Average Accuracy and F Score-------------------//')
 decisionTreeAccuracyScores = list(decisionTreePerformance['accuracy'].values())
 averageDecisionTreeAccuracy = np.mean(decisionTreeAccuracyScores)
+print('Average decision tree accuracy: ', averageDecisionTreeAccuracy)
+print('Average KNN accuracy: Please see visualization.')
+print('Average KNN f score: Please see visualization.')
 
 knnAverageAccuracy = {}
 knnAverageFScore = {}
 for k in knnPerformance:
     accuracyValuesList = [knn['accuracy'] for knn in knnPerformance[k]]
     fScoreValuesList = [knn['fScore'] for knn in knnPerformance[k]]
-
     knnAverageAccuracy[k] = np.mean(accuracyValuesList)
     knnAverageFScore[k] = np.mean(fScoreValuesList)
 
-
-print(knnAverageFScore)
-
+print('\n//-------------------Plotting Charts-------------------//')
 plt.bar(list(knnAverageAccuracy.keys()), list(knnAverageAccuracy.values()))
-plt.title('Number of Nearest Neighbors vs Average Accuracy')
+plt.title('Average Accuracy of Numbers of Nearest Neighbors')
 plt.xlabel('Nearest Neighbors')
 plt.ylabel('Average Accuracy')
 plt.axis([0, 11, 0.8, 1])
-
 plt.show()
 
-
-
+plt.bar(list(knnAverageFScore.keys()), list(knnAverageFScore.values()))
+plt.title('F Scores of Nearest Neighbors')
+plt.xlabel('Nearest Neighbors')
+plt.ylabel('F Score')
+plt.axis([0, 11, 0.8, 1])
+plt.show()
