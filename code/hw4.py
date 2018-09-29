@@ -5,42 +5,82 @@ from sklearn.model_selection import cross_val_score
 import pandas as pd
 import numpy as np
 import graphviz
+from sklearn.metrics import accuracy_score
+from sklearn.metrics import f1_score
 
 
 print('\n\n//=================== HOMEWORK 4 ====================//')
-print('//----------------Developing a Classifier----------------//')
 numSplits = 5
 irisDataframe = pd.read_csv('../input/data.csv')
 
 
 recordsPerSplit = len(irisDataframe) / numSplits
-classifier = tree.DecisionTreeClassifier()
+decisionTreeClassifier = tree.DecisionTreeClassifier()
 
 classes = set(irisDataframe['class'])
 
+print('\n//-------------------Cleaning Data-------------------//')
 cleanValues = {
-    'class': {
+    'class': {}
+}
 
-    }
+print('Numeric Values of Categorical Data:')
+i = 0
+for value in classes:
+    print(f'{value}: {i}')
+    cleanValues['class'][value] = i
+    i += 1
+
+irisDataframe.replace(cleanValues, inplace=True)
+
+print('\n//-------------------Constructing Models-------------------//')
+decisionTreePerformance = {
+    'accuracy': {},
+    'fMeasure': {}
+}
+
+knnPerformance = {
+
 }
 
 for i in list(range(0, numSplits)):
+    # divide into training and testing data
     sliceIndexStart = i * recordsPerSplit
     sliceIndexEnd = sliceIndexStart + recordsPerSplit - 1
     irisTestingDataset = irisDataframe.loc[sliceIndexStart:sliceIndexEnd]
     irisTrainingDataset = irisDataframe.drop(irisTestingDataset.index[:])
 
-    y = irisTrainingDataset['class']
-    x = y.drop(columns='class')
+    # divide into records and labels
+    xTrainingSet = irisTrainingDataset.drop(columns='class')
+    yTrainingSet = irisTrainingDataset['class']
+    xTestingSet = irisTestingDataset.drop(columns='class')
+    yTestingSet = irisTestingDataset['class']
 
-    # classifier.fit(x, y)
+    # make decision tree, calculate accuracy of predictions
+    decisionTreeClassifier.fit(xTrainingSet, yTrainingSet)
+    decisionTreePredictedLabels = decisionTreeClassifier.predict(xTestingSet)
+    decisionTreeAccuracyScore = accuracy_score(yTestingSet, decisionTreePredictedLabels)
+    decisionTreePerformance['accuracy'][i] = decisionTreeAccuracyScore
 
-    # dotData = tree.export_graphviz(classifier, out_file=None)
-    # graph = graphviz.Source(dotData)
+    # output decision tree
+    dotData = tree.export_graphviz(decisionTreeClassifier, out_file=None)
+    graph = graphviz.Source(dotData)
+    graph.render(f"../output/tree_{i}")
 
-    # graph.render(f"../output/tree_{i}")
+    #  make knn classifier, calculate accuracy of predictions
+    numNeighbors = list(range(1, 11))
+    for k in numNeighbors:
+        knnClassifier = KNeighborsClassifier(n_neighbors=k)
+        knnClassifier.fit(xTrainingSet, yTrainingSet)
+        knnPredictedValues = knnClassifier.predict(xTestingSet)
+        knnAccuracyScore = accuracy_score(yTestingSet, knnPredictedValues)
+        knnFScore = f1_score(yTestingSet, knnPredictedValues)
 
-
+        knnPerformance[i] = {
+            'k': k,
+            'accuracy': knnAccuracyScore,
+            'fScore': knnFScore
+        }
 
 # numFolds = 5
 # decisionTreeClassifier = DecisionTreeClassifier()
