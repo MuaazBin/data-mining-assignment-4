@@ -39,9 +39,7 @@ decisionTreePerformance = {
     'fMeasure': {}
 }
 
-knnPerformance = {
-
-}
+knnPerformance = {}
 
 for i in list(range(0, numSplits)):
     # divide into training and testing data
@@ -69,18 +67,20 @@ for i in list(range(0, numSplits)):
 
     #  make knn classifier, calculate accuracy of predictions
     numNeighbors = list(range(1, 11))
+    knnPerformance[i] = list()
+
     for k in numNeighbors:
         knnClassifier = KNeighborsClassifier(n_neighbors=k)
         knnClassifier.fit(xTrainingSet, yTrainingSet)
         knnPredictedValues = knnClassifier.predict(xTestingSet)
         knnAccuracyScore = accuracy_score(yTestingSet, knnPredictedValues)
-        knnFScore = f1_score(yTestingSet, knnPredictedValues)
+        knnFScore = f1_score(yTestingSet, knnPredictedValues, average='weighted')
 
-        knnPerformance[i] = {
+        knnPerformance[i].append({
             'k': k,
             'accuracy': knnAccuracyScore,
             'fScore': knnFScore
-        }
+        })
 
 # numFolds = 5
 # decisionTreeClassifier = DecisionTreeClassifier()
