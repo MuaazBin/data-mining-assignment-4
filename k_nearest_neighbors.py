@@ -1,7 +1,5 @@
-from sklearn.datasets import load_iris
 from sklearn import tree
 from sklearn.neighbors import KNeighborsClassifier
-from sklearn.model_selection import cross_val_score
 import pandas as pd
 import numpy as np
 import graphviz
@@ -13,7 +11,6 @@ import matplotlib.pyplot as plt
 print('\n\n//=================== HOMEWORK 4 ====================//')
 numSplits = 5
 irisDataframe = pd.read_csv('../input/data.csv')
-
 
 recordsPerSplit = len(irisDataframe) / numSplits
 decisionTreeClassifier = tree.DecisionTreeClassifier()
