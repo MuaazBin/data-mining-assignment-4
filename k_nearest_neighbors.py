@@ -1,3 +1,12 @@
+# ------------------------- Homework 4: Using and Evaluating a K Nearest Neighbors Model -------------------------- #
+# Use k nearest neighbors model to classify iris dataset. Evaluate model's performance according to following
+# metrics:
+#   - Accuracy
+#   - F1 Score
+#
+# Full problem description can be found in problem_description.pdf.
+# ----------------------------------------------------------------------------------------------------------------- #
+
 from sklearn import tree
 from sklearn.neighbors import KNeighborsClassifier
 import pandas as pd
@@ -8,104 +17,103 @@ from sklearn.metrics import f1_score
 import matplotlib.pyplot as plt
 
 
-print('\n\n//=================== HOMEWORK 4 ====================//')
-numSplits = 5
-irisDataframe = pd.read_csv('../input/data.csv')
+print('============================== HOMEWORK 4 ==============================')
+num_splits = 5
+flower_dataset = pd.read_csv('input/data.csv')
 
-recordsPerSplit = len(irisDataframe) / numSplits
-decisionTreeClassifier = tree.DecisionTreeClassifier()
+records_per_split = len(flower_dataset) / num_splits
+decision_tree_classifier = tree.DecisionTreeClassifier()
 
-classes = set(irisDataframe['class'])
+possible_flowers = set(flower_dataset['class'])
 
-print('\n//-------------------Cleaning Data-------------------//')
-cleanValues = {
+print('\n------------ CONVERTING CATEGORICAL DATA TO NUMERIC VALUES -------------')
+clean_values = {
     'class': {}
 }
 
-print('Numeric Values of Categorical Data:')
-i = 0
-for value in classes:
-    print(f'{value}: {i}')
-    cleanValues['class'][value] = i
-    i += 1
+print('CATEGORICAL DATA: NUMERIC VALUE')
+for index, flower in enumerate(possible_flowers):
+    clean_values['class'][flower] = index
+    print(f'{flower}: {index}')
 
-irisDataframe.replace(cleanValues, inplace=True)
+flower_dataset.replace(clean_values, inplace=True)
 
-print('\n//-------------------Constructing Models-------------------//')
-decisionTreePerformance = {
+print('\n--------------------- MAKING, EVALUATING MODELS ------------------------')
+decision_tree_performance = {
     'accuracy': {},
 }
 
-knnPerformance = {}
+knn_performance = {}
 
-for i in list(range(0, numSplits)):
+for i in range(0, num_splits):
     # divide into training and testing data
-    sliceIndexStart = i * recordsPerSplit
-    sliceIndexEnd = sliceIndexStart + recordsPerSplit - 1
-    irisTestingDataset = irisDataframe.loc[sliceIndexStart:sliceIndexEnd]
-    irisTrainingDataset = irisDataframe.drop(irisTestingDataset.index[:])
+    slice_index_start = i * records_per_split
+    slide_index_end = slice_index_start + records_per_split - 1
+    flower_testing_dataset = flower_dataset.loc[slice_index_start:slide_index_end]
+    flower_training_dataset = flower_dataset.drop(flower_testing_dataset.index[:])
 
     # divide into records and labels
-    xTrainingSet = irisTrainingDataset.drop(columns='class')
-    yTrainingSet = irisTrainingDataset['class']
-    xTestingSet = irisTestingDataset.drop(columns='class')
-    yTestingSet = irisTestingDataset['class']
+    training_data = flower_training_dataset.drop(columns='class')
+    training_labels = flower_training_dataset['class']
+    testing_data = flower_testing_dataset.drop(columns='class')
+    testing_labels = flower_testing_dataset['class']
 
     # make decision tree, calculate accuracy of predictions
-    decisionTreeClassifier.fit(xTrainingSet, yTrainingSet)
-    decisionTreePredictedLabels = decisionTreeClassifier.predict(xTestingSet)
-    decisionTreeAccuracyScore = accuracy_score(yTestingSet, decisionTreePredictedLabels)
-    decisionTreePerformance['accuracy'][i] = decisionTreeAccuracyScore
+    decision_tree_classifier.fit(training_data, training_labels)
+    decision_tree_predicted_labels = decision_tree_classifier.predict(testing_data)
+    decision_tree_accuracy = accuracy_score(testing_labels, decision_tree_predicted_labels)
+    decision_tree_performance['accuracy'][i] = decision_tree_accuracy
 
-    # output decision tree
-    dotData = tree.export_graphviz(decisionTreeClassifier, out_file=None)
-    graph = graphviz.Source(dotData)
-    graph.render(f"../output/tree_{i}")
+    # output visualization of decision tree
+    output = tree.export_graphviz(decision_tree_classifier, out_file=None)
+    graph = graphviz.Source(output)
+    graph.render(f"output/tree_{i}")
 
     #  make knn classifier, calculate accuracy of predictions
-    numNeighbors = list(range(1, 11))
+    num_neighbors = range(1, 11)
 
-    for k in numNeighbors:
-        knnClassifier = KNeighborsClassifier(n_neighbors=k)
-        knnClassifier.fit(xTrainingSet, yTrainingSet)
-        knnPredictedValues = knnClassifier.predict(xTestingSet)
-        knnAccuracyScore = accuracy_score(yTestingSet, knnPredictedValues)
-        knnFScore = f1_score(yTestingSet, knnPredictedValues, average='weighted')
+    for k in num_neighbors:
+        knn_classifier = KNeighborsClassifier(n_neighbors=k)
+        knn_classifier.fit(training_data, training_labels)
+        knn_predicted_values = knn_classifier.predict(testing_data)
+        knn_accuracy = accuracy_score(testing_labels, knn_predicted_values)
+        knn_f1_score = f1_score(testing_labels, knn_predicted_values, average='weighted')
 
-        if k not in knnPerformance:
-            knnPerformance[k] = list()
+        if k not in knn_performance:
+            knn_performance[k] = list()
 
-        knnPerformance[k].append({
-            'accuracy': knnAccuracyScore,
-            'fScore': knnFScore
+        knn_performance[k].append({
+            'accuracy': knn_accuracy,
+            'fScore': knn_f1_score
         })
 
-print('\n//-------------------Calculating Average Accuracy and F Score-------------------//')
-decisionTreeAccuracyScores = list(decisionTreePerformance['accuracy'].values())
-averageDecisionTreeAccuracy = np.mean(decisionTreeAccuracyScores)
-print('Average decision tree accuracy: ', averageDecisionTreeAccuracy)
-print('Average KNN accuracy: Please see visualization.')
-print('Average KNN f score: Please see visualization.')
+print('\n--------------- CALCULATING AVERAGE ACCURACY AND F SCORE ---------------')
+decision_tree_accuracy_scores = list(decision_tree_performance['accuracy'].values())
+average_decision_tree_accuracy = np.mean(decision_tree_accuracy_scores)
+print('Average Decision Tree Accuracy: ', average_decision_tree_accuracy)
+print('Average KNN Accuracy: Please see visualization.')
+print('Average KNN F Score: Please see visualization.')
 
-knnAverageAccuracy = {}
-knnAverageFScore = {}
-for k in knnPerformance:
-    accuracyValuesList = [knn['accuracy'] for knn in knnPerformance[k]]
-    fScoreValuesList = [knn['fScore'] for knn in knnPerformance[k]]
-    knnAverageAccuracy[k] = np.mean(accuracyValuesList)
-    knnAverageFScore[k] = np.mean(fScoreValuesList)
+knn_average_accuracy = {}
+knn_average_f_score = {}
+for k in knn_performance:
+    accuracy_list = [knn['accuracy'] for knn in knn_performance[k]]
+    f_score_list = [knn['fScore'] for knn in knn_performance[k]]
+    knn_average_accuracy[k] = np.mean(accuracy_list)
+    knn_average_f_score[k] = np.mean(f_score_list)
 
-print('\n//-------------------Plotting Charts-------------------//')
-plt.bar(list(knnAverageAccuracy.keys()), list(knnAverageAccuracy.values()))
-plt.title('Average Accuracy of Numbers of Nearest Neighbors')
-plt.xlabel('Nearest Neighbors')
+print('\n-------------------------- VISUALIZATIONS ------------------------------')
+print('A popup window should appear shortly.')
+plt.bar(list(knn_average_accuracy.keys()), list(knn_average_accuracy.values()))
+plt.title('Average Accuracy of K Nearest Neighbors')
+plt.xlabel('# of Nearest Neighbors')
 plt.ylabel('Average Accuracy')
 plt.axis([0, 11, 0.8, 1])
 plt.show()
 
-plt.bar(list(knnAverageFScore.keys()), list(knnAverageFScore.values()))
-plt.title('F Scores of Nearest Neighbors')
-plt.xlabel('Nearest Neighbors')
+plt.bar(list(knn_average_f_score.keys()), list(knn_average_f_score.values()))
+plt.title('F Scores of K Nearest Neighbors')
+plt.xlabel('# of Nearest Neighbors')
 plt.ylabel('F Score')
 plt.axis([0, 11, 0.8, 1])
 plt.show()
