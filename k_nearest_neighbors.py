@@ -1,9 +1,9 @@
+"""
+This module uses k nearest neighbors model to classify iris flower dataset. Evaluate model's performance according to
+accuracy and F1 Score
+"""
+
 # ------------------------- Homework 4: Using and Evaluating a K Nearest Neighbors Model -------------------------- #
-# Use k nearest neighbors model to classify iris dataset. Evaluate model's performance according to following
-# metrics:
-#   - Accuracy
-#   - F1 Score
-#
 # Full problem description can be found in problem_description.pdf.
 # ----------------------------------------------------------------------------------------------------------------- #
 
